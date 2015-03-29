@@ -23,20 +23,19 @@ def convertFile(oldFile, newFile):
             ##print(i)
             j = line.find(',', k +i)
             if (j<0):
-                new.write(line[i+1:])
+                new.write(line[i+2:])
                 break
             ##print(j)
-            new.write(line[i+1:j+1])
+            new.write(line[i+2:j+1])
             k= j
             
         
-        ##new.write('\n')
-        
+                
     currentTime = str(time.ctime())
-    new.write("********************")
+    new.write("********************\n")
     new.write('Finished converting file at: ')
     new.write(currentTime)
-    new.write("********************")
+    new.write("********************\n")
     
     new.close()
     old.close()
