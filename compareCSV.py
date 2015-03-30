@@ -2,10 +2,22 @@ import pandas as pd
 import numpy as np
 import matplotlib as plt
 from datetime import datetime
+from datetime import timedelta
+from dateutil.parser import parse
 
 ##Reformat date
 def pullDate(strDate):
-    dt = datetime.strptime(strDate, '%H:%M %d/%m/%Y')
+    try:
+        dt = datetime.strptime(strDate, '%H:%M %d/%m/%Y')
+    except ValueError:
+        dt = parse(strDate)
+    if (dt.second !=0):
+        if (dt.second >= 30):
+            td = timedelta(seconds = 60 - dt.second)
+            dt = dt + td
+        else:
+            td = timedelta(seconds = dt.second)
+            dt = dt - td  
     return dt
     
 def prepCSV(csv):
@@ -39,10 +51,8 @@ def compareCSV(f1, f2):
     ##Merge by Date Time
     df = df1.join(df2)
     print('merged')
-    ##compare the two temperatures
-    df.describe()
-    df.corr()
-    ##Plot together and save to file
+    print(df)
+    ##Plot together
     ax = df.plot()
     fig = ax.get_figure()
     fig.savefig('temp.png')
