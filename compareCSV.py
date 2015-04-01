@@ -1,3 +1,4 @@
+##Plots two time indexed temperature CSVs against each other and prints correlation
 import pandas as pd
 import numpy as np
 import matplotlib as plt
@@ -10,7 +11,11 @@ def pullDate(strDate):
     try:
         dt = datetime.strptime(strDate, '%H:%M %d/%m/%Y')
     except ValueError:
-        dt = parse(strDate)
+        try:
+            dt = parse(strDate)
+        except ValueError:
+            dt = pd.NaT
+            return dt
     if (dt.second !=0):
         if (dt.second >= 30):
             td = timedelta(seconds = 60 - dt.second)
@@ -22,8 +27,10 @@ def pullDate(strDate):
     
 def prepCSV(csv):
     names = ['date', 'temp']
-    ##import csv 
-    df = pd.read_csv(csv, names=names)
+    ##import csv in chunks
+    fileChunks = pd.read_csv(csv, names=names, iterator=True, chunksize=1000)
+    df = pd.concat(fileChunks, ignore_index=True)
+    
     ##Get date as series and reformat date
     s = df['date']
     s = s[3:-2]
@@ -47,19 +54,21 @@ def compareCSV(f1, f2):
     ##Should check here to make sure both are date-time indexed
     ##Make temp col have respective numbering
     df1 = df1.rename(columns = {'Temp':'temp1'})
+    #print(df1)
     df2 = df2.rename(columns = {'Temp':'temp2'})
+    #print(df2)
     ##Merge by Date Time
     df = df1.join(df2)
     print('merged')
-    print(df)
+    #print(df)
     ##Plot together
     ax = df.plot()
     fig = ax.get_figure()
     fig.savefig('temp.png')
     print('plotted')
-    
+    print(df.corr())
      
-f1 = input('File 1: ')
-f2 = input('File 2: ')
+f1 = input('File 1: ') + ".csv"
+f2 = input('File 2: ') + ".csv"
 
 compareCSV(f1, f2)

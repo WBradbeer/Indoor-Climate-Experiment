@@ -19,11 +19,11 @@ def expandFile(oldFile, newFile):
             i = line.find(',')
             if (i > 0):
                 if (row < 10):
-                    new.write(line[:i-1])
+                    new.write(line[:i-12])
                 else: 
-                    new.write(line[:i-2])
+                    new.write(line[:i-13])
                 new.write(str(row))
-                new.write(line[i:])
+                new.write(line[i-11:])
                 new.flush()
             else:
                 new.write(line)
