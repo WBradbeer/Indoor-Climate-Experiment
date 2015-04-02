@@ -23,7 +23,12 @@ def convertFile(oldFile, newFile):
             ##print(i)
             j = line.find(',', k +i)
             if (j<0):
-                new.write(line[i+2:])
+                ##Catches double line breaks such that csv has values on every line
+                end = line.find('\n', k +i)
+                if (end > -1):
+                    new.write(line[i+2:end])
+                else:
+                    new.write(line[i+2:])
                 break
             ##print(j)
             new.write(line[i+2:j+1])
@@ -35,7 +40,7 @@ def convertFile(oldFile, newFile):
     new.write("********************\n")
     new.write('Finished converting file at: ')
     new.write(currentTime)
-    new.write("********************\n")
+    new.write("\n********************")
     
     new.close()
     old.close()
