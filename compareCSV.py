@@ -40,25 +40,35 @@ def prepCSV(csv):
     s = s[3:-2]
     sT = pd.Series([x for x in s])
     ##Make dataframes and join them
-    dfD = pd.DataFrame(sD, columns = ['Date Time'])
+    dfD = pd.DataFrame(sD, columns = ['DateTime'])
     dfT = pd.DataFrame(sT, columns = ['Temp'])
     df = dfD.join(dfT)
-    df = df.set_index(['Date Time'])
     return df
     
-    
+def interpolate(csv):
+    df = prepCSV(csv)
+    #create minutely series
+    startTime = df['DateTime'][0]
+    endTime = df['DateTime'][df.DateTime.count()-1]
+    minutely = pd.date_range(startTime, endTime, freq='1min')
+    #Merge with temp data
+    minutelydf = pd.DataFrame(minutely, columns = ["DateTime"])
+    df= minutelydf.merge(df, how ="outer", on = "DateTime")
+    #interpolate linearly
+    df.Temp = df.Temp.interpolate()
+    return df    
     
 def compareCSV(f1, f2):
     df1 = prepCSV(f1)
-    df2 = prepCSV(f2)
-    ##Should check here to make sure both are date-time indexed
+    df2 = interpolate(f2)
     ##Make temp col have respective numbering
     df1 = df1.rename(columns = {'Temp':'temp1'})
     #print(df1)
     df2 = df2.rename(columns = {'Temp':'temp2'})
     #print(df2)
     ##Merge by Date Time
-    df = df1.join(df2)
+    df = df1.merge(df2, on="DateTime")
+    df = df.set_index(['DateTime'])
     print('merged')
     #print(df)
     ##Plot together
@@ -68,7 +78,7 @@ def compareCSV(f1, f2):
     print('plotted')
     print(df.corr())
      
-f1 = input('File 1: ') + ".csv"
-f2 = input('File 2: ') + ".csv"
+f1 = input('File 1 (Minutely): ') + ".csv"
+f2 = input('File 2 (Hourly): ') + ".csv"
 
 compareCSV(f1, f2)
