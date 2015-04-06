@@ -26,19 +26,34 @@ def pullDate(strDate):
     return dt
     
 def prepCSV(csv):
-    names = ['date', 'temp']
+    names = ['date', 'temp', 'lights', 'knock']
     ##import csv in chunks
     fileChunks = pd.read_csv(csv, names=names, iterator=True, chunksize=1000)
     df = pd.concat(fileChunks, ignore_index=True)
-    
     ##Get date as series and reformat date
-    s = df['date']
-    s = s[3:-2]
-    sD = pd.Series([pullDate(date) for date in s])
+    sD = df['date']
+    sD = pd.Series([pullDate(date) for date in sD])
+    ##Find Start and End of Data
+    start = 0
+    startFound = False
+    while not startFound:
+        if type(sD[start]) is not pd.tslib.Timestamp:
+            start +=1
+        else:
+            startFound = True
+    end = sD.size - sD.count() - start
+    if (end):
+        sD = sD[start:-end]
+    else:
+        sD = sD[start:]
+    sD = pd.Series([x for x in sD])
     ##Get temp as series and reset indexes
-    s = df['temp']
-    s = s[3:-2]
-    sT = pd.Series([x for x in s])
+    sT = df['temp']
+    if (end):
+        sT = sT[start:-end]
+    else:
+        sT = sT[start:]
+    sT = pd.Series([x for x in sT])
     ##Make dataframes and join them
     dfD = pd.DataFrame(sD, columns = ['DateTime'])
     dfT = pd.DataFrame(sT, columns = ['Temp'])
