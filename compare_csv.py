@@ -116,7 +116,11 @@ def compare_csv(f1, f2):
     print(dataframe.corr())
 
 
-file1 = input('File 1 (Minutely): ')
-file2 = input('File 2 (Hourly): ')
+def main():
+    file1 = input('File 1 (Minutely): ')
+    file2 = input('File 2 (Hourly): ')
+    compare_csv(file1, file2)
 
-compare_csv(file1, file2)
+
+if __name__ == '__main__':
+    main()
